@@ -14,7 +14,7 @@ NAME = lem-in
 
 FLAGS = -Wall -Werror -Wextra
 
-LEMIN =  start.c parse.c
+LEMIN =  start.c parse.c process.c
 
 LIBFT = libft/libft.a
 

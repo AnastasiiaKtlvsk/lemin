@@ -16,7 +16,10 @@ int     main(void)
 {
     t_l tl;
 
-    read_data(&tl);
+    write(1, "start\n", 6);
     
+    if (read_data(&tl))
+        process(&tl);
+
     return (0);
 }
