@@ -42,6 +42,7 @@ int     check_room(t_l *tl, t_r *nr)
 	{
         nr->st = 0;
         nr->rl = ft_memalloc(sizeof(char) * 2048);
+        nr->pth = ft_memalloc(sizeof(char) * 2048);
          printf("check_room 2\n"); 
         while (tl->r && tr)
         {

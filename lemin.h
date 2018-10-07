@@ -30,6 +30,7 @@ typedef	struct		s_r
     struct s_r      *nx; // next
     char    		*rl;
     int             st; // number of step
+    char            *pth; 
 }					t_r;
 
 typedef	struct		s_l
@@ -41,11 +42,12 @@ typedef	struct		s_l
     int             sn; //number of starts
     int             en; // number of ends
     char            *res; // result (L1-room1)
+    t_r             *nl;  //new esult list
 }					t_l;
 
 int					read_data(t_l *tl);
 t_r                 *ret_end(t_l *tl);
-int      process(t_l *tl);
-t_r      *find_r_by_n(t_l *tl, char *n);
+int                 process(t_l *tl);
+t_r                 *find_r_by_n(t_l *tl, char *n);
 
 #endif
