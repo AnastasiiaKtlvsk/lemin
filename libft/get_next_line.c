@@ -40,7 +40,7 @@ static int	read_zsh(char **str, int fd, char **line)
 	char	*temp;
 
 	buf = ft_strnew(BUFF_SIZE);
-	while ((ret = read(fd, buf, BUFF_SIZE)))
+	while ((ret = read(fd, buf, BUFF_SIZE)) >= 1)
 	{
 		buf[ret] = '\0';
 		temp = *str;
@@ -60,7 +60,6 @@ static int	read_zsh(char **str, int fd, char **line)
 int			get_next_line(const int fd, char **line)
 {
 	static char *massiv[4096];
-
 	if (read(fd, 0, 0) < 0)
 		return (-1);
 	if (!massiv[fd])

@@ -12,14 +12,17 @@
 
 # include "lemin.h"
 
-int     main(void)
+int     main(int argc, char**argv)
 {
     t_l tl;
+    char *temp;
 
-    write(1, "start\n", 6);
-    
-    if (read_data(&tl))
+    tl.sn = 0;
+    tl.en = 0;
+    if (read_data(&tl, temp))
         process(&tl);
-
+    else
+        ft_putstr("Error\n");
+    free_lm(&tl);
     return (0);
 }

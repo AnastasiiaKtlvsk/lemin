@@ -45,9 +45,12 @@ typedef	struct		s_l
     t_r             *nl;  //new esult list
 }					t_l;
 
-int					read_data(t_l *tl);
+int                 read_data(t_l *tl, char  *temp);
 t_r                 *ret_end(t_l *tl);
 int                 process(t_l *tl);
 t_r                 *find_r_by_n(t_l *tl, char *n);
+void                print_res(t_l *tl);
+void                free_da(char **arr);
+void                free_lm(t_l *tl);
 
 #endif
