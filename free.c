@@ -15,6 +15,16 @@ void    free_rooms(t_l *tl)
        tr = tr->nx;
        free(cr);
     }
+    tr = tl->nl;
+    while (tr)
+    {
+       free(tr->n);
+       free(tr->rl);
+       free(tr->pth);
+       cr = tr;
+       tr = tr->nx;
+       free(cr);
+    }
 }
 void    free_lm(t_l *tl)
 {
@@ -24,6 +34,8 @@ void    free_lm(t_l *tl)
         free(tl->res);
     if (tl->rl && ft_strlen(tl->rl) > 0)
         free(tl->rl);
+    if (tl->pr && ft_strlen(tl->pr) > 0)
+        free(tl->pr);
     free_rooms(tl);
 }
 

@@ -4,17 +4,13 @@ t_r     *ret_end(t_l *tl)
 {
     t_r      *tr;
 
-    printf("RETURN END\n");
     tr = tl->r;
     while (tr)
     {
-        if (tr->iE == 1){
-            printf("END NAME = %s\n", tr->n);
+        if (tr->iE == 1)
             return (tr);
-        }
         tr = tr->nx;
     }
-    printf("return 0\n");
     return (NULL);
 }
 
@@ -22,233 +18,257 @@ t_r     *ret_start(t_l *tl)
 {
     t_r      *tr;
 
-    printf("RETURN START\n");
     tr = tl->r;
     while (tr)
     {
-        if (tr->iS == 1){
-            printf("START NAME = %s\n", tr->n);
+        if (tr->iS == 1)
             return (tr);
-        }
         tr = tr->nx;
     }
-    printf("return 0\n");
     return (NULL);
 }
 
-void    f_p(t_l *tl, char ***q, t_r *tr)
+void    f_p(t_l *tl, char ***q, t_r *tr, int k)
 {
     char    **ch;
-    char    **res;
     int     i;
-    int     k;
     t_r     *cr;
-printf("FP FP FPF FPF FPPPF FPF PF   FF PF FP FPF pF\n");
-    k = -1;
+
     while ((*q)[++k])
-    {
         if ((*q)[k + 1])
             (*q)[k] = (*q)[k + 1];
-    }
     ch = ft_strsplit(tr->rl, '#');
     i = -1;
+    k -= 1;
+    (*q)[k] = NULL;
     while (ch[++i])
     {
         cr = find_r_by_n(tl, ch[i]);
-        if (cr->f == 0)
+        if (cr && cr->f == 0)
         {
             if (ft_strlen(tr->pth) > 0)
-            {  
                 cr->pth = ft_strcat(cr->pth, tr->pth);
-            }
             cr->pth = ft_strcat(cr->pth, tr->n);
             cr->pth = ft_strcat(cr->pth, "L");
             cr->f = 1;
             (*q)[k++] = cr->n;
-            printf("write to queue\n");
         }
     }
+    free_da(ch);
 }
 
-void    find_paths(t_l *tl) // s - step
+int    find_paths(t_l *tl)
 {
-    char    **q; //que
+    char    **q;
     int     flag;
     t_r     *tr;
-    int i;
-    int p;
 
     flag = 0;
     tr = ret_start(tl);
-    q = (char **)ft_memalloc(sizeof(char*) * 1000);
+    q = (char **)ft_memalloc(sizeof(char*) * 5000);
     q[0] = tr->n;
     while (!flag)
-    {
-        if (q[0]){
+    { 
+        if (q[0] && ft_strlen(q[0]) > 0)
+        {
             tr = find_r_by_n(tl, q[0]);
-             if (tr->iE == 1)
-            flag = 1;
-        f_p(tl, &q, tr);
-        }else { flag = 1;}
-       
+            if (tr->iE == 1)
+                flag = 1;
+            f_p(tl, &q, tr, -1);
+        } else
+            flag = 5;
     }
-    
+    if (q)
+        free_da(q);
+    if (flag == 1)
+        return 1;
+    return 0;
 }
 
-void    check_next(t_l *tl, t_r *cr, int s) // s - step
+void    ch_n_c(t_l *tl, t_r  *tr, t_r *cr, int s)
 {
-    char    **ch;
-    int i;
-    t_r      *tr;
-
-   // printf("SSSSSSSSSSSSSSSS = %i\n", s);
-    printf("check_next name = %s, s = %i\n", cr->n, cr->st);
-    ch = ft_strsplit(cr->rl, '#');
-    i = -1;
-    while(ch[++i])
+    char    *t;
+ 
+   if (tr->f != 0 && tr->st < s && tr->iE == 0 &&
+        (cr->f == 0 || cr->iE == 1))
     {
-        tr = find_r_by_n(tl, ch[i]);
-        printf("WHILE NAME -- %s, s = %i\n", tr->n, tr->st);
-        if (tr->f != 0 && tr->st < s && tr->iE == 0 && (cr->f == 0 || cr->iE == 1))
+       tl->res = ft_strcat(tl->res, "L");
+        if (tr->iS == 0)
         {
-          //   printf("find ant in name = %s\n", tr->n);
-            tl->res = ft_strcat(tl->res, "L");
-            if (tr->iS == 0)
-            {
-                cr->f = tr->f;
-                tr->f = 0;
-                tl->res = ft_strcat(tl->res, ft_itoa(cr->f));
-            }
-            else if (tr->f > 0){
-                cr->f = tl->na - tr->f + 1;
-            //    printf("tl->na = %i, tr->f = %i, tl->na - tl->sn + 1 = %i\n", tl->na,tr->f,(tl->na - tr->f + 1));
-                tl->res = ft_strcat(tl->res, ft_itoa(tl->na - tr->f + 1));
-                tr->f -= 1;
-            }
-            tl->res = ft_strcat(tl->res, "-");
-            tl->res = ft_strcat(tl->res, cr->n);
-            tl->res = ft_strcat(tl->res, " ");
-
-           // printf("CURRENT      Result : %s\n", tl->res);
-            if (cr->iE == 1)
-            {
-                tl->en++;
-            //    printf("tl->en+++++++++++++++++++++++++++++++++++++++++\n");
-            }
+            cr->f = tr->f;
+            tr->f = 0;
+            t = ft_itoa(cr->f);
         }
-        if (tr->st < s)
-        {   
-            if (tr->iS == 0)
+        else if (tr->f > 0)
+        {
+            cr->f = tl->na - tr->f + 1;
+            t = ft_itoa(tl->na - tr->f + 1);
+            tr->f -= 1;
+        }
+        tl->res = ft_strcat(tl->res, t);
+        free(t);
+        tl->res = ft_strcat(tl->res, "-");
+        tl->res = ft_strcat(tl->res, cr->n);
+        tl->res = ft_strcat(tl->res, " ");
+        if (cr->iE == 1)
+            tl->en++; 
+    } 
+}
+
+void    check_next(t_l *tl, t_r *cr, int s, char  ***ch)
+{
+    int     i;
+    t_r     *tr;
+    char    **dh;
+
+    i = -1;
+    while((*ch)[++i])
+    {
+        tr = find_r_by_n(tl, (*ch)[i]);
+        if (tr)
+        {
+            ch_n_c(tl, tr, cr, s);
+            if (tr->st < s)
             {
-                tr->st = s;
-                check_next(tl, tr, s);
+                if (tr->iS == 0)
+                {
+                    tr->st = s;
+                    dh = ft_strsplit(tr->rl, '#');
+                    check_next(tl, tr, s, &dh);
+                   // free_da(dh);
+                }
             }
         }
     }
+   // if (s > 2)
+   if (*ch && *ch[0])
+   free_da(*ch);
     cr->st = s;
 }
 
-void     result(t_l *tl)
-{
-    t_r      *er;
-    t_r      *sr;
-    t_r        *nr;
-    char    **nl;
 
-    er = ret_end(tl);
-    er->pth = ft_strcat(er->pth, er->n);
-    printf("er->pth %s\n", er->pth);
-    nl = ft_strsplit(er->pth, 'L');
-    int i = -1;
-    printf("before  before cycle\n");
+void     pr_res(t_l *tl, t_r *nr)
+{
+    t_r *sr;
+    char    *t;
+
+    sr = (nr->nx) ? nr->nx : 0;
+    if (sr && sr->f > 0 && (nr->f == 0 || nr->iE == 1))
+    {
+        tl->res = ft_strcat(tl->res, "L");
+        if (sr->iS == 1)
+        {
+            t = ft_itoa(tl->na - sr->f + 1);
+
+            nr->f = tl->na - sr->f + 1;
+            sr->f -= 1;
+        }
+        else
+        {
+            t = ft_itoa(sr->f);
+            nr->f = sr->f;
+            sr->f = 0;
+        }
+        tl->res = ft_strcat(tl->res, t);
+        free(t);
+        tl->res = ft_strcat(tl->res, "-");
+        tl->res = ft_strcat(tl->res, nr->n);
+        tl->res = ft_strcat(tl->res, " ");
+        if(nr->iE)
+            tl->en++;
+    }
+}
+
+void     result(t_l *tl, int i, char **nl)
+{
+    t_r     *nr;
+    t_r     *tr;
+
     while (nl[++i])
     {
-        printf("nl[++i] |%s|\n", nl[i]);
-        nr = find_r_by_n(tl, nl[i]);
-        nr->f = 0;
-        if (nr->iS)
-            nr->f = tl->na;
-		nr->nx = (tl->nl) ? tl->nl : NULL;
-		tl->nl = nr;
-	}
-printf("before cycle\n");
-int l = -1;
+        nr = cr_r(tl, 1);
+        tr = find_r_by_n(tl, nl[i]);
+        if (tr){
+        nr->n = ft_strdup(tr->n);
+        nr->pth = ft_strcat(nr->pth, tr->pth);
+        nr->iS = tr->iS;
+        nr->f = (nr->iS == 1) ? tl->na : 0;
+        nr->iE = tr->iE;
+        nr->nx = (tl->nl) ? tl->nl : NULL;
+        }
+        tl->nl = nr;
+    }
+
     while(tl->en != tl->na)
     {
         nr = tl->nl;
-        
-        while(nr && ++l < 10)
+        while(nr && ft_strlen(nr->n) > 0)
         {
-           sr = nr->nx;
-
-            if (sr && sr->f > 0 && (nr->f == 0 || nr->iE == 1))
-            {
-                
-                tl->res = ft_strcat(tl->res, "L");
-                if (sr->iS == 1)
-                {
-                    tl->res = ft_strcat(tl->res, ft_itoa(tl->na - sr->f + 1));
-                    nr->f = tl->na - sr->f + 1;
-                    sr->f -= sr->f;
-                }
-                else{
-                    tl->res = ft_strcat(tl->res, ft_itoa(sr->f));
-                    nr->f = sr->f;
-                    sr->f = 0;
-                }
-                tl->res = ft_strcat(tl->res, "-");
-                tl->res = ft_strcat(tl->res, nr->n);
-                tl->res = ft_strcat(tl->res, " ");
-               if(nr->iE)
-                tl->en++;
-            }
-            printf("cycle name = %s sr->f %i nr->f %i nr->ie %i\n", nr->n, sr->f, nr->f, nr->iE);
-            nr = (nr->nx->n) ? nr->nx : NULL;
+            //write(1, "r222\n", 5);
+            pr_res(tl, nr);
+            nr = (nr && nr->nx != NULL) ? nr->nx : NULL;
+          //  write(1, "r333\n", 5);
         }
-        tl->res = ft_strcat(tl->res, "\n");
-
+         tl->res = ft_strcat(tl->res, "\n");
+        // write(1, "r444\n", 5);
     }
-    printf("RESRESRESRES: %s\n", tl->res);
+    free_da(nl);
+}
+
+int    one_way(t_l *tl)
+{
+    t_r      *er;
+
+    tl->en = 0;
+    tl->res = ft_memalloc(sizeof(char) * 8056);
+    
+    if (!find_paths(tl))
+    {
+        ft_putstr("Error\n");
+        return (0);
+    }
+
+write(1, "fp\n", 3);
+    er = ret_end(tl);
+    write(1, "re\n", 3);
+    er->pth = ft_strcat(er->pth, er->n);
+    printf("path = %s\n", er->pth);
+        return (1);
+    result(tl, -1, ft_strsplit(er->pth, 'L'));
+    write(1, "r2\n", 3);
+    print_res(tl);
+    return (1);
 }
 
 int      process(t_l *tl)
 {
     int i;
     t_r      *er;
+    char    **tc;
 
     tl->en = 0;
     if (tl->na < 4)
-    {
-     char    *cr;//current resulr
-
-        i = 0;
-         tl->en = 0;
-          tl->res = ft_memalloc(sizeof(char) * 2048);
-          cr = ft_memalloc(sizeof(char) * 2048);
-        find_paths(tl);
-        er = ret_end(tl);
-        printf("Result : %s\n", er->pth);
-        result(tl);
-        return (0);
-    }
+        return(one_way(tl));
 
     i = 0;
-   
-    tl->res = ft_memalloc(sizeof(char) * 2048);
+    tl->res = ft_memalloc(sizeof(char) * 4056);
     while (tl->en != tl->na && ++i && tl->en > -1)
     {
+         
         er =  ret_end(tl);
         er->st = i;
-        check_next(tl, er, i);
+        tc = ft_strsplit(er->rl, '#');
+        check_next(tl, er, i, &tc);
+       // free(tc); 
         if (!ft_strlen(tl->res))
         {
             tl->en = -5;
         }
-        else 
-         tl->res = ft_strcat(tl->res, "\n");
+        else
+            tl->res = ft_strcat(tl->res, "\n");
     }
-    printf("Result : %s\n", tl->res);
+    print_res(tl);
     if (tl->en < 0)
-        printf("Error");
+        ft_putstr("Error\n");
     return (0);
 }
