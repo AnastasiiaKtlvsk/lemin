@@ -49,8 +49,8 @@ t_r     *cr_r(t_l *tl, int t)
     r->iE = (t == 2) ? 1 : 0;
     r->f = (t == 0) ? tl->na : 0;
     r->st = 0;
-    r->rl = ft_memalloc(sizeof(char) * 8056);
-    r->pth = ft_memalloc(sizeof(char) * 8056);
+    r->rl = ft_memalloc(sizeof(char) * 100000);
+    r->pth = ft_memalloc(sizeof(char) * 100000);
     r->nx = NULL;
     return (r);
 }
@@ -81,7 +81,7 @@ int     check_room(t_l *tl, t_r *nr)
 void    pr_com(t_l *tl, char *temp)
 {
     if (!tl->c || ft_strlen(tl->c) == 0)
-        tl->c = ft_memalloc(sizeof(char) * 8048);
+        tl->c = ft_memalloc(sizeof(char) * 100000);
     tl->c = ft_strcat(tl->c, ft_strchr(temp, '#') + 1); 
     tl->c = ft_strcat(tl->c, "\n");
 }
@@ -145,7 +145,7 @@ void     cr_rlt(t_l *tl, char *temp)
     tl->pr = ft_strcat(tl->pr, temp);
     tl->pr = ft_strcat(tl->pr,"\n");
     if (!tl->rl || ft_strlen(tl->rl) == 0)
-        tl->rl = ft_memalloc(sizeof(char) * 8056);
+        tl->rl = ft_memalloc(sizeof(char) * 100000);
     else
         tl->rl = ft_strcat(tl->rl, "#");
     tl->rl = ft_strcat(tl->rl, temp);
@@ -158,7 +158,7 @@ t_r      *find_r_by_n(t_l *tl, char *n)
     tr = tl->r;
     while (tr)
     {
-        if (!ft_strcmp(tr->n, n))
+        if (n && tr->n && !ft_strcmp(tr->n, n))
             return (tr);
         tr = tr->nx;
     }
@@ -176,20 +176,22 @@ int     relations(t_l *tl, int i)
     while (pms[++i])
     {
         rel = ft_strsplit(pms[i], '-');
-        tr1 = find_r_by_n(tl, rel[0]);
+        if (rel[0] && rel[1])
+        {tr1 = find_r_by_n(tl, rel[0]);
         tr2 = find_r_by_n(tl, rel[1]);
         if (rel[0] && rel[1] && (tr1) && (tr2))
         {
-            // tr1->rl = ft_strcat(tr1->rl, rel[1]);
-            // tr2->rl = ft_strcat(tr2->rl, rel[0]);
-            // tr1->rl = ft_strcat(tr1->rl, "#");
-            // tr2->rl = ft_strcat(tr2->rl, "#");
+            tr1->rl = ft_strcat(tr1->rl, rel[1]);
+            tr2->rl = ft_strcat(tr2->rl, rel[0]);  
+            tr1->rl = ft_strcat(tr1->rl, "#");
+            tr2->rl = ft_strcat(tr2->rl, "#");
         }
         else{
                 free_da(rel);
                 free_da(pms);
                 return (0);
             }
+        }
         free_da(rel);
     }
     free_da(pms);

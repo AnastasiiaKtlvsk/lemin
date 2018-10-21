@@ -233,7 +233,7 @@ write(1, "fp\n", 3);
     write(1, "re\n", 3);
     er->pth = ft_strcat(er->pth, er->n);
     printf("path = %s\n", er->pth);
-        return (1);
+    return (1); //___________________________________
     result(tl, -1, ft_strsplit(er->pth, 'L'));
     write(1, "r2\n", 3);
     print_res(tl);
