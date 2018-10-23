@@ -26,7 +26,7 @@ void    free_da(char **arr)
     free(arr);
 }
 
-int     ch_dgts(char *s)
+int     ch_dgts(char *s, int f)
 {
     int i;
 
@@ -36,22 +36,28 @@ int     ch_dgts(char *s)
         if ((s[i] > 57 || s[i] < 48) &&
         s[i] != ' ' && s[i] != '-' && s[i] != 13)
             return (0);
+        if (s[i] == '-' && f == 0)
+            return (0);
     }
     return (1);
 }
 
-t_r     *cr_r(t_l *tl, int t)
+t_r     *cr_r(t_l *tl, int t, char *n)
 {
     t_r     *r;
 
     r = ft_memalloc(sizeof(t_r));
+    r->n = ft_strdup(n);
     r->iS = (t == 0) ? 1 : 0;
+    (t == 0) ? tl->st = ft_strdup(n) : 0;
+    (t == 2) ? tl->ed = ft_strdup(n) : 0;
     r->iE = (t == 2) ? 1 : 0;
     r->f = (t == 0) ? tl->na : 0;
     r->st = 0;
     r->rl = ft_memalloc(sizeof(char) * 100000);
     r->pth = ft_memalloc(sizeof(char) * 100000);
     r->nx = NULL;
+
     return (r);
 }
 
@@ -66,10 +72,12 @@ int     check_room(t_l *tl, t_r *nr)
 	{
         while (tl->r && tr)
         {
-            if ((nr->x == tr->x && nr->y == tr->y) || nr->n == tr->n)
+            if ((nr->x == tr->x && nr->y == tr->y) || nr->n == tr->n){
                 return (0);
+            }
             tr = tr->nx;
         }
+        
 		 nr->nx = (tl->r) ? tl->r : NULL;
 		 tl->r = nr;
          return (1);
@@ -100,13 +108,12 @@ int     pr_sw(t_l *tl, char *temp, int fd)
         tl->pr = ft_strcat(tl->pr, line);
         tl->pr = ft_strcat(tl->pr,"\n");
         pms = ft_strsplit(line, ' ');
-        if (pms[0] && pms[1] && pms[2])
+        if (pms[0] && pms[1] && pms[2] && !pms[3])
         {
-              r = (ft_strstr(temp, "start")) ? cr_r(tl, 0) : cr_r(tl, 2);
+              r = (ft_strstr(temp, "start")) ? cr_r(tl, 0, pms[0]) : cr_r(tl, 2, pms[0]);
               (ft_strstr(temp, "start")) ? tl->sn++ : tl->en++;
-              r->n = ft_strdup(pms[0]);
-              r->x = (ch_dgts(pms[1])) ? ft_atoi(pms[1]) : -2147483647;
-              r->y = (ch_dgts(pms[2])) ? ft_atoi(pms[2]) : -2147483647;
+              r->x = (ch_dgts(pms[1], 1)) ? ft_atoi(pms[1]) : -2147483647;
+              r->y = (ch_dgts(pms[2], 1)) ? ft_atoi(pms[2]) : -2147483647;
               free_da(pms);
               free(line);
               if (check_room(tl, r))
@@ -124,15 +131,14 @@ int     cr_room(t_l *tl, char *temp)
     t_r     *r;
     int     f;
 
-    r = cr_r(tl, 1);
     pms = ft_strsplit(temp, ' ');
-    if (pms && pms[0] && ft_strlen(pms[0]) && pms[1] && ft_strlen(pms[1]) && pms[2])
+    if (pms && pms[0] && ft_strlen(pms[0]) && pms[1] && ft_strlen(pms[1]) && pms[2] && !pms[3])
     {
+        r = cr_r(tl, 1, pms[0]);
         tl->pr = ft_strcat(tl->pr, temp);
         tl->pr = ft_strcat(tl->pr,"\n");
-        r->n = ft_strdup(pms[0]);
-        r->x = (ch_dgts(pms[1])) ? ft_atoi(pms[1]) : -2147483647;
-        r->y = (ch_dgts(pms[2])) ? ft_atoi(pms[2]) : -2147483647;
+        r->x = (ch_dgts(pms[1], 1)) ? ft_atoi(pms[1]) : -2147483647;
+        r->y = (ch_dgts(pms[2], 1)) ? ft_atoi(pms[2]) : -2147483647;
         f = check_room(tl, r);       
     } else
         f = -1;
@@ -156,10 +162,13 @@ t_r      *find_r_by_n(t_l *tl, char *n)
     t_r      *tr;
 
     tr = tl->r;
+    t_r *yr = tl->r;
+              
     while (tr)
     {
-        if (n && tr->n && !ft_strcmp(tr->n, n))
+        if (n && tr->n && !ft_strcmp(tr->n, n) && tr->iS > -5 && tr->iE > -5){
             return (tr);
+        }
         tr = tr->nx;
     }
     return (NULL);
@@ -207,14 +216,18 @@ int    read_na(t_l *tl, char  *temp, int fd)
     tl->sn = 0;
     tl->en = 0;
     tl->nl = NULL;
+    tl->r = NULL;
+    tl->st = NULL;
+    tl->ed = NULL;
     tl->pr = ft_memalloc(sizeof(char) * 200000);
     if (get_next_line(fd, &temp) > 0)
     {
         tl->pr = ft_strcat(tl->pr, temp);
         tl->pr = ft_strcat(tl->pr,"\n");
         tl->na = ft_atoi(temp);
-        if (!ch_dgts(temp) || tl->na < 1)
+        if (!ch_dgts(temp, 0) || tl->na < 1)
         {
+            
             free(temp);
             return (0);
         }
@@ -231,6 +244,7 @@ int     read_data(t_l *tl, char  *temp, int f)
         return (0);
     while (get_next_line(fd, &temp) > 0)
     {
+        //("temp = %s\n", temp);
         if (ft_strstr(temp, "#") && !ft_strstr(temp, "##"))
             pr_com(tl, temp);
         else
@@ -274,51 +288,51 @@ int     read_data(t_l *tl, char  *temp, int f)
         {
             ++i;
             if (i > 995 && i < 1100)
-                printf("name %s, x = %i,y = %i, iS = %i, isE = %i, f = %i\n", tr->n, tr->x, tr->y, tr->iS, tr->iE, tr->f);
+                //printf("name %s, x = %i,y = %i, iS = %i, isE = %i, f = %i\n", tr->n, tr->x, tr->y, tr->iS, tr->iE, tr->f);
             tr = tr->nx;
         }*/
-printf("relations: %s\n", tl->rl);
+//printf("relations: %s\n", tl->rl);
         if (!relations(tl, -1) || tl->sn != 1 || tl->en != 1)
              return (0);
 
 
 
-        printf("tr %p\n", tr);
-      printf("tl->r %p  name %s |\n", tl->r, tl->r->n);
-    //    printf("trrrrrrrrrrrrrr %p name %s |\n", tr, tr->n);
-    //    printf("herehejhfh\n");
+        //printf("tr %p\n", tr);
+      //printf("tl->r %p  name %s |\n", tl->r, tl->r->n);
+    //    //printf("trrrrrrrrrrrrrr %p name %s |\n", tr, tr->n);
+    //    //printf("herehejhfh\n");
      //   } else {
-     //       printf("BLYAAAAAAA\n");
+     //       //printf("BLYAAAAAAA\n");
      //   }
 
-        write(1,"ar\n", 3);
+       // write(1,"ar\n", 3);
 
 //_________________________________________________________________________________________________
-      printf("\n\nConclusion >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
-        printf("lemin stucture: na = %i\n", tl->na);
-        printf("rooms : \n");
+      //printf("\n\nConclusion >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
+        //printf("lemin stucture: na = %i\n", tl->na);
+        //printf("rooms : \n");
 
          if (tl->r){
 
         tr = tl->r;
         }
-      //  printf("tr %p\n", tr);
-    //  printf("tl->r %p  name %s |\n", tl->r, tl->r->n);
-    //    printf("trrrrrrrrrrrrrr %p name %s |\n", tr, tr->n);
-    //    printf("herehejhfh\n");
+      //  //printf("tr %p\n", tr);
+    //  //printf("tl->r %p  name %s |\n", tl->r, tl->r->n);
+    //    //printf("trrrrrrrrrrrrrr %p name %s |\n", tr, tr->n);
+    //    //printf("herehejhfh\n");
      //   } else {
-     //       printf("BLYAAAAAAA\n");
+     //       //printf("BLYAAAAAAA\n");
      //   }
       i = 0;
         while (tr)
         {
             ++i;
-            if (i > 998 && i < 1100)
-                printf("name %s, x = %i,y = %i, iS = %i, isE = %i, f = %i, rl = %s\n", tr->n, tr->x, tr->y, tr->iS, tr->iE, tr->f, tr->rl);
+          //  if (i > 998 && i < 1100)
+                //printf("name %s, x = %i,y = %i, iS = %i, isE = %i, f = %i, rl = %s\n", tr->n, tr->x, tr->y, tr->iS, tr->iE, tr->f, tr->rl);
             tr = tr->nx;
         }
-        printf("comments: %s\n", tl->c);
-      printf("relations: %s\n", tl->rl);
+        //printf("comments: %s\n", tl->c);
+      //printf("relations: %s\n", tl->rl);
      //  close(fd);
     return (1);
 }

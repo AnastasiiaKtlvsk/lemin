@@ -23,6 +23,7 @@ int     main(int argc, char**argv)
     else
         ft_putstr("Error\n");
     free_lm(&tl);
+    sleep(3);
    // system("leaks lem-in");
     return (0);
 }

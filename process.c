@@ -153,10 +153,11 @@ void     pr_res(t_l *tl, t_r *nr)
     char    *t;
 
     sr = (nr->nx) ? nr->nx : 0;
-    if (sr && sr->f > 0 && (nr->f == 0 || nr->iE == 1))
+    if (sr && sr->f > 0 && (nr->f == 0 || nr->iE == 1 || !ft_strcmp(tl->ed, nr->n)))
     {
+      //  //printf("pr_res\n");
         tl->res = ft_strcat(tl->res, "L");
-        if (sr->iS == 1)
+        if (sr->iS == 1 || !ft_strcmp(tl->st, nr->n))
         {
             t = ft_itoa(tl->na - sr->f + 1);
 
@@ -176,6 +177,7 @@ void     pr_res(t_l *tl, t_r *nr)
         tl->res = ft_strcat(tl->res, " ");
         if(nr->iE)
             tl->en++;
+             //printf("pr_res end if\n");
     }
 }
 
@@ -186,14 +188,17 @@ void     result(t_l *tl, int i, char **nl)
 
     while (nl[++i])
     {
-        nr = cr_r(tl, 1);
+        
         tr = find_r_by_n(tl, nl[i]);
-        if (tr){
-        nr->n = ft_strdup(tr->n);
+        if (tr)
+        {
+        nr = cr_r(tl, 1, tr->n);
         nr->pth = ft_strcat(nr->pth, tr->pth);
-        nr->iS = tr->iS;
+      //  //printf("tr->n %s tr->is %i\n", tr->n, tr->iS);
+        nr->iS = (tr->iS > 0 || !ft_strcmp(tl->st, tr->n)) ? 1 : 0;
         nr->f = (nr->iS == 1) ? tl->na : 0;
-        nr->iE = tr->iE;
+      //  nr->iE = tr->iE;
+      nr->iE = (tr->iE > 0 || !ft_strcmp(tl->ed, tr->n)) ? 1 : 0;
         nr->nx = (tl->nl) ? tl->nl : NULL;
         }
         tl->nl = nr;
@@ -204,13 +209,14 @@ void     result(t_l *tl, int i, char **nl)
         nr = tl->nl;
         while(nr && ft_strlen(nr->n) > 0)
         {
-            //write(1, "r222\n", 5);
+       //    write(1, "r222\n", 5);
+         // //printf("nr->n = %s, nr->iE = %i, nr->f = %i\n",nr->n, nr->iE, nr->f);
             pr_res(tl, nr);
-            nr = (nr && nr->nx != NULL) ? nr->nx : NULL;
+            nr = (nr && nr->nx) ? nr->nx : NULL;
           //  write(1, "r333\n", 5);
         }
          tl->res = ft_strcat(tl->res, "\n");
-        // write(1, "r444\n", 5);
+       //  write(1, "r444\n", 5);
     }
     free_da(nl);
 }
@@ -228,14 +234,19 @@ int    one_way(t_l *tl)
         return (0);
     }
 
-write(1, "fp\n", 3);
+//write(1, "fp\n", 3);
     er = ret_end(tl);
-    write(1, "re\n", 3);
+   // write(1, "re\n", 3);
     er->pth = ft_strcat(er->pth, er->n);
-    printf("path = %s\n", er->pth);
-    return (1); //___________________________________
+    //printf("path = %s\n", er->pth);
+    //printf("tl->en = %i tl->na = %i\n",tl->en, tl->na );
+
+
+       
+
+  // return (1); //___________________________________
     result(tl, -1, ft_strsplit(er->pth, 'L'));
-    write(1, "r2\n", 3);
+  //  write(1, "r2\n", 3);
     print_res(tl);
     return (1);
 }

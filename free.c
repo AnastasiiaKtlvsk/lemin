@@ -8,13 +8,14 @@ void    free_rooms(t_l *tl)
     tr = tl->r;
     while (tr)
     {
-       free(tr->n);
+       //free(tr->n);
        free(tr->rl);
        free(tr->pth);
        cr = tr;
        tr = tr->nx;
        free(cr);
     }
+     //printf("gers\n");
     tr = tl->nl;
     while (tr)
     {
@@ -28,7 +29,7 @@ void    free_rooms(t_l *tl)
 }
 void    free_lm(t_l *tl)
 {
-    if (tl->c && ft_strlen(tl->c) > 0)
+ /*   if (tl->c && ft_strlen(tl->c) > 0)
         free(tl->c);
     if (tl->res && ft_strlen(tl->res) > 0)
         free(tl->res);
@@ -36,6 +37,10 @@ void    free_lm(t_l *tl)
         free(tl->rl);
     if (tl->pr && ft_strlen(tl->pr) > 0)
         free(tl->pr);
-    free_rooms(tl);
+    if (tl->st)
+        free(tl->st);
+    if (tl->ed)
+        free(tl->ed);  */
+   // free_rooms(tl);
 }
 
