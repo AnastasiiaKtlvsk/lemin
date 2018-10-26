@@ -32,10 +32,10 @@ liball:
 	
 clean:
 	@rm -f *.o
-	make clean -C libft/
+	@ make clean -C libft/
 
 fclean: clean
-	make fclean -C libft/
-	rm -rf $(NAME)
+	@ make fclean -C libft/
+	@ rm -rf $(NAME)
 
 re: fclean all

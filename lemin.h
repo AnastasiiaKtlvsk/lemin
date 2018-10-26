@@ -52,6 +52,7 @@ typedef	struct		s_l
 }					t_l;
 
 int					read_data(t_l *tl, char  *temp, int f);
+int					read_na(t_l *tl, char *temp, int fd);
 t_r					*ret_end(t_l *tl);
 int					process(t_l *tl);
 t_r					*find_r_by_n(t_l *tl, char *n);
@@ -62,5 +63,6 @@ t_r					*cr_r(t_l *tl, int t, char *n);
 void                rell_rl(t_l *tl);
 void                rell_pr(t_l *tl);
 void                rell_c(t_l *tl);
+int					relations(t_l *tl, int i);
 
 #endif
